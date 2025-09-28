@@ -88,6 +88,9 @@ class ApigwHttpApiLambdaDynamodbPythonCdkStack(Stack):
             self,
             "VpcFlowLogGroup",
             retention=logs.RetentionDays.ONE_MONTH,
+            # For demo purposes - enables easy cleanup and cost management in demo environments
+            # In production environments, consider longer retention periods based on compliance requirements
+            # and implement proper lifecycle policies for cost optimization
             removal_policy=RemovalPolicy.DESTROY,  # For demo purposes
             encryption_key=None  # Uses default CloudWatch Logs encryption
         )
@@ -149,6 +152,10 @@ class ApigwHttpApiLambdaDynamodbPythonCdkStack(Stack):
 
         # Create the Lambda function to receive the request
         # First create explicit CloudWatch Log Group for Lambda
+        # This change provides explicit control over Lambda logging configuration
+        # instead of relying on AWS Lambda's automatic log group creation.
+        # Benefits include: predefined retention policies, explicit IAM permissions,
+        # consistent naming conventions, and better resource lifecycle management
         lambda_log_group = logs.LogGroup(
             self,
             "LambdaLogGroup",
@@ -156,7 +163,6 @@ class ApigwHttpApiLambdaDynamodbPythonCdkStack(Stack):
             retention=logs.RetentionDays.ONE_MONTH,
             removal_policy=RemovalPolicy.DESTROY  # For demo purposes
         )
-
         api_hanlder = lambda_.Function(
             self,
             "ApiHandler",
@@ -197,7 +203,7 @@ class ApigwHttpApiLambdaDynamodbPythonCdkStack(Stack):
             self,
             "ApiGatewayAccessLogs",
             retention=logs.RetentionDays.ONE_MONTH,
-            removal_policy=RemovalPolicy.DESTROY  # For demo purposes
+            removal_policy=RemovalPolicy.DESTROY  # For demo purposes - enables easy cleanup in demo environments
         )
 
         # Configure API Gateway with access logging
@@ -222,7 +228,8 @@ class ApigwHttpApiLambdaDynamodbPythonCdkStack(Stack):
         )
 
         # Set API Gateway account-level CloudWatch Logs role
-        # Note: This is a one-time account-level setting
+        # Note: This is a one-time account-level setting for demo environments
+        # In production, this would typically be configured once per AWS account
         apigw_.CfnAccount(
             self,
             "ApiGatewayAccount",
