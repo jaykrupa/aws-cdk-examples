@@ -6,7 +6,25 @@
 
 Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function writing to [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) and invoked by [Amazon API Gateway](https://aws.amazon.com/api-gateway/) REST API. 
 
+This implementation includes **end-to-end X-Ray tracing** for compliance with AWS Well-Architected Framework **REL06-BP07: Monitor end-to-end tracing of requests through your system**.
+
 ![architecture](docs/architecture.png)
+
+## Features
+
+- **X-Ray Tracing**: Complete end-to-end tracing across API Gateway → Lambda → DynamoDB
+- **CloudWatch Synthetics**: Automated API endpoint monitoring with synthetic transactions
+- **VPC Isolation**: Lambda function deployed in private subnet with VPC endpoints
+- **Error Handling**: Graceful degradation when X-Ray is unavailable
+- **Monitoring**: Comprehensive observability with service maps and trace analysis
+
+## X-Ray Tracing Components
+
+1. **API Gateway Tracing**: Enabled at the deployment stage level
+2. **Lambda Tracing**: Active tracing with X-Ray SDK instrumentation
+3. **DynamoDB Tracing**: Automatic AWS SDK call instrumentation
+4. **VPC Endpoint**: X-Ray interface endpoint for private subnet connectivity
+5. **Synthetics Monitoring**: Canary tests running every 5 minutes
 
 ## Setup
 
@@ -84,6 +102,28 @@ You should get below response
 ```json
 {"message": "Successfully inserted data!"}
 ```
+
+## Viewing X-Ray Traces
+
+After making API requests, you can view the end-to-end traces in the AWS X-Ray console:
+
+1. **Service Map**: Navigate to AWS X-Ray → Service map to see the complete request flow
+2. **Traces**: View individual traces showing latency and errors across all components
+3. **Analytics**: Use trace analytics to identify performance bottlenecks
+4. **CloudWatch Synthetics**: Monitor the canary results in CloudWatch Synthetics console
+
+### Expected Service Map Components:
+- **API Gateway**: Entry point showing request volume and latency
+- **Lambda Function**: Processing time and error rates
+- **DynamoDB**: Database operation performance and throttling
+
+## Monitoring and Alerting
+
+The implementation includes:
+- **CloudWatch Synthetics Canary**: Runs every 5 minutes to test API availability
+- **X-Ray Service Map**: Visual representation of service dependencies
+- **Trace Analytics**: Performance analysis and error detection
+- **CloudWatch Metrics**: Standard Lambda and API Gateway metrics
 
 ## Cleanup 
 Run below script to delete AWS resources created by this sample stack.
