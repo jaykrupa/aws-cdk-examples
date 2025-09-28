@@ -4,9 +4,69 @@
 
 ## Overview
 
-Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function writing to [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) and invoked by [Amazon API Gateway](https://aws.amazon.com/api-gateway/) REST API. 
+Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function writing to [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) and invoked by [Amazon API Gateway](https://aws.amazon.com/api-gateway/) REST API with comprehensive security logging capabilities.
 
 ![architecture](docs/architecture.png)
+
+## Security Logging Features
+
+This implementation includes comprehensive security and application logging in compliance with AWS Well-Architected Framework SEC04-BP01:
+
+### 1. AWS CloudTrail
+- **Purpose**: Captures API-level security events and AWS service activity
+- **Storage**: Secure S3 bucket with encryption and versioning
+- **Features**: Multi-region trail with file validation enabled
+- **Retention**: Configurable based on compliance requirements
+
+### 2. VPC Flow Logs
+- **Purpose**: Network-level security monitoring for Lambda function traffic
+- **Destination**: CloudWatch Logs
+- **Retention**: 1 month (configurable)
+- **Coverage**: All VPC network interfaces
+
+### 3. API Gateway Access Logging
+- **Purpose**: Comprehensive API usage monitoring and security event tracking
+- **Format**: Structured JSON with standard fields
+- **Captured Data**: 
+  - Caller information
+  - HTTP method and path
+  - Source IP address
+  - Request/response timing
+  - Status codes
+  - User agent information
+
+### 4. Lambda Function Security Logging
+- **Purpose**: Structured security event logging for data access and operations
+- **Event Types**:
+  - API request events with security context
+  - Data access events (read/write operations)
+  - Operation success/failure events
+  - Error and exception logging
+- **Format**: Structured JSON for easy querying and analysis
+- **Fields**: Timestamps, request IDs, source IPs, operation types, data classification
+
+## Security Event Types Logged
+
+1. **API Request Events**: Every incoming request with security context
+2. **Data Access Events**: All DynamoDB operations with classification
+3. **Operation Success/Failure**: Detailed outcome logging
+4. **Network Flow Events**: VPC-level network traffic monitoring
+5. **AWS Service Events**: CloudTrail captures all AWS API calls
+
+## Log Analysis and Monitoring
+
+All logs are structured for easy analysis using:
+- **CloudWatch Logs Insights**: Query and analyze application logs
+- **CloudTrail Event History**: Search and filter AWS API events
+- **VPC Flow Logs**: Network traffic analysis and security monitoring
+
+Example CloudWatch Logs Insights query for security events:
+```
+fields @timestamp, request_id, event_type, source_ip, operation
+| filter event_type like /Security Event/
+| sort @timestamp desc
+| limit 100
+```
 
 ## Setup
 
